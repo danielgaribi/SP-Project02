@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import random
 
-DEBUG_INPUT = True # set to False 
+DEBUG_INPUT = False # set to False 
 
 def readArgs():
     assert(4 <= len(sys.argv) <= 5)
@@ -59,18 +59,26 @@ def kmeans_pp(datapoints, k):
     
     return centroids
 
+def convert_DF_to_PDArr(pointsDF):
+    arr = []
+    for row in range(pointsDF.shape[0]):
+        # print(f"first row:\n{join_points_DF.loc(0)[0]}")
+        index = pointsDF.loc(0)[row][0]
+        point = pointsDF.loc(0)[row][1:].to_numpy()
+        arr.append((index,point))
+
 def main():
     k, max_iter, file_path1, file_path2 = readArgs()
     pointsDf1 = readPointsFromFile(file_path1)
     pointsDf2 = readPointsFromFile(file_path2)
     join_points_DF = pd.merge(pointsDf1, pointsDf2, on = 'Index') 
-    
-    # set to list of tuples as (index, NDarray(x0,x1,x2...))
-    
     set_header(join_points_DF)
+    
     N, d = join_points_DF.shape
-    d -= 1 # if Index column is delete erase this line 
+    d -= 1 # if Index column is delete erase this line //////////////////////////////////////////////////
 
+    PD_Arr = convert_DF_to_PDArr(join_points_DF)
+    
     if (k >= N):
         print("K is not smaller then n, exits...")
         exit(0)
@@ -80,6 +88,7 @@ def main():
         print(join_points_DF.to_string())
 
     datapoints =[np.array([0,0]), np.array([1,1]), np.array([10,10])]
-    print(kmeans_pp(datapoints,2))
+    if (DEBUG_INPUT):
+        print(kmeans_pp(datapoints,2))
 
 main() 
