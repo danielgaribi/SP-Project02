@@ -48,8 +48,11 @@ def main():
     k, max_iter, file_path1, file_path2 = readArgs()
     pointsDf1 = readPointsFromFile(file_path1)
     pointsDf2 = readPointsFromFile(file_path2)
-    join_points_DF = pd.merge(pointsDf1, pointsDf2, on = 'Index') # delete Index ??
-    set_header(join_points_DF)    
+    join_points_DF = pd.merge(pointsDf1, pointsDf2, on = 'Index') 
+    
+    # set to list of tuples as (index, NDarray(x0,x1,x2...))
+    
+    set_header(join_points_DF)
     N, d = join_points_DF.shape
     d -= 1 # if Index column is delete erase this line 
 
@@ -61,7 +64,7 @@ def main():
         print("\npoints:\n")
         print(join_points_DF.to_string())
 
-main()
+main() 
 
 # run command: 
 # & python "c:/Users/ofer/Desktop/פרויקט תוכנה - פרויקט 2/SP-Project02/kmeans_pp.py" 3 100 "C:\Users\ofer\Desktop\פרויקט תוכנה - פרויקט 2\SP-Project02\test_data\input_1_db_1.txt" "C:\Users\ofer\Desktop\פרויקט תוכנה - פרויקט 2\SP-Project02\test_data\input_1_db_2.txt"
