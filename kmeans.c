@@ -1,3 +1,4 @@
+#include <Python.h>
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
@@ -54,6 +55,7 @@ int computeCluster(int k, int d, double** centroids, linked_list* pointsList);
 int computeNewCentroids(linked_list** clusters, double** centroids, int k, int d);
 void printOutput(double** centroids, int k, int d);
 void freeDouble2DArray(double **centroids, int k);
+static PyObject *fit( PyObject *self, PyObject *args );
 
 int main(int argc, char *argv[]) {
     int k, max_iter, d, res;
@@ -336,4 +338,27 @@ void printOutput(double** centroids, int k, int d) {
         }
         printf("\n");
     }
+}
+
+static PyObject *fit( PyObject *self, PyObject *args ){
+    printf("hey im in C\n");
+    Py_RETURN_NONE;
+}
+
+static PyMethodDef DemoLib_FunctionsTable[] = {
+   { "fit", fit, METH_VARARGS, NULL },
+   { NULL, NULL, 0, NULL }
+};
+
+// modules definition
+static struct PyModuleDef DemoLib_Module = {
+    PyModuleDef_HEAD_INIT,
+    "mykmeanssp",     // name of module exposed to Python
+    "mykmeanssp doc", // module documentation
+    -1,
+    DemoLib_FunctionsTable
+};
+
+PyMODINIT_FUNC PyInit_mykmeanssp(void) {
+    return PyModule_Create(&DemoLib_Module);
 }

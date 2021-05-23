@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 import numpy as np
 import random
+import mykmeanssp
 
 DEBUG_INPUT = False # set to False 
 
@@ -43,7 +44,6 @@ def readPointsFromFile(file_path):
     pointsDf = pd.read_csv(file_path, header=None)
     set_header(pointsDf)
     return pointsDf
-    # print(f"first row:\n{pointsDf.loc(0)[1]}")
 
 def kmeans_pp(datapoints, k):
     centroids = [random.choice(datapoints)]
@@ -51,18 +51,17 @@ def kmeans_pp(datapoints, k):
     while(Z < k):
         D = []
         for x in datapoints:
-            distances = [np.linalg.norm(x - centroid) for centroid in centroids]
+            distances = [np.linalg.norm(x[1] - centroid[1]) for centroid in centroids]
             D.append(min(distances))
         
         Z += 1
-        centroids.append(random.choices(datapoints, weights=D))
+        centroids.append(random.choices(datapoints, weights=D)[0])
     
     return centroids
 
 def convert_DF_to_PDArr(pointsDF):
     arr = []
     for row in range(pointsDF.shape[0]):
-        # print(f"first row:\n{join_points_DF.loc(0)[0]}")
         index = pointsDF.loc(0)[row][0]
         point = pointsDF.loc(0)[row][1:].to_numpy()
         arr.append((index,point))
@@ -87,8 +86,9 @@ def main():
         print("\npoints:\n")
         print(join_points_DF.to_string())
 
-    datapoints =[np.array([0,0]), np.array([1,1]), np.array([10,10])]
+    datapoints =[(0, np.array([0,0])), (1, np.array([1,1])), (2, np.array([10,10])), (3, np.array([11,11])), (4, np.array([120,11])), (5, np.array([115,14]))]
     if (DEBUG_INPUT):
-        print(kmeans_pp(datapoints,2))
+        print(kmeans_pp(datapoints,k))
+    mykmeanssp.fit()
 
 main() 
