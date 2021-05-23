@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 import numpy as np
+import random
 
 DEBUG_INPUT = True # set to False 
 
@@ -44,6 +45,20 @@ def readPointsFromFile(file_path):
     return pointsDf
     # print(f"first row:\n{pointsDf.loc(0)[1]}")
 
+def kmeans_pp(datapoints, k):
+    centroids = [random.choice(datapoints)]
+    Z = 1
+    while(Z < k):
+        D = []
+        for x in datapoints:
+            distances = [np.linalg.norm(x - centroid) for centroid in centroids]
+            D.append(min(distances))
+        
+        Z += 1
+        centroids.append(random.choices(datapoints, weights=D))
+    
+    return centroids
+
 def main():
     k, max_iter, file_path1, file_path2 = readArgs()
     pointsDf1 = readPointsFromFile(file_path1)
@@ -64,7 +79,7 @@ def main():
         print("\npoints:\n")
         print(join_points_DF.to_string())
 
-main() 
+    datapoints =[np.array([0,0]), np.array([1,1]), np.array([10,10])]
+    print(kmeans_pp(datapoints,2))
 
-# run command: 
-# & python "c:/Users/ofer/Desktop/פרויקט תוכנה - פרויקט 2/SP-Project02/kmeans_pp.py" 3 100 "C:\Users\ofer\Desktop\פרויקט תוכנה - פרויקט 2\SP-Project02\test_data\input_1_db_1.txt" "C:\Users\ofer\Desktop\פרויקט תוכנה - פרויקט 2\SP-Project02\test_data\input_1_db_2.txt"
+main() 
