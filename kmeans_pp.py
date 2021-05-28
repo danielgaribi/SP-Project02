@@ -46,7 +46,8 @@ def readPointsFromFile(file_path):
     return pointsDf
 
 def kmeans_pp(datapoints, k):
-    centroids = [random.choice(datapoints)]
+    np.random.seed(0)
+    centroids = [datapoints[np.random.choice(len(datapoints))]]
     Z = 1
     while(Z < k):
         D = []
@@ -55,7 +56,9 @@ def kmeans_pp(datapoints, k):
             D.append(min(distances))
         
         Z += 1
-        centroids.append(random.choices(datapoints, weights=D)[0])
+        s = sum(D)
+        D = list(map(lambda d: d/s, D))
+        centroids.append(datapoints[np.random.choice(len(datapoints), p=D)])
     
     return centroids
 
@@ -86,9 +89,6 @@ def main():
         print("\npoints:\n")
         print(join_points_DF.to_string())
 
-    datapoints =[(0, np.array([0,0])), (1, np.array([1,1])), (2, np.array([10,10])), (3, np.array([11,11])), (4, np.array([120,11])), (5, np.array([115,14]))]
-    if (DEBUG_INPUT):
-        print(kmeans_pp(datapoints,k))
     mykmeanssp.fit()
 
 main() 
