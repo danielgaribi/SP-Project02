@@ -68,6 +68,7 @@ def convert_DF_to_PDArr(pointsDF):
         index = pointsDF.loc(0)[row][0]
         point = pointsDF.loc(0)[row][1:].to_numpy()
         arr.append((index,point))
+    return arr
 
 def main():
     k, max_iter, file_path1, file_path2 = readArgs()
@@ -80,7 +81,6 @@ def main():
     d -= 1 # dim - 1 for Index column
 
     PD_Arr = convert_DF_to_PDArr(join_points_DF)
-    
     if (k >= N):
         print("K is not smaller then n, exits...")
         exit(0)
@@ -88,7 +88,9 @@ def main():
         print(f"k: {k}\nmax_iter: {max_iter}\nfile_path1: {file_path1}\nfile_path2: {file_path2}")
         print("\npoints:\n")
         print(join_points_DF.to_string())
-    
-    mykmeanssp.fit()
+
+    centroids = kmeans_pp(PD_Arr, k)
+    print(centroids)
+    mykmeanssp.fit(k, d, max_iter, list(map(lambda x: x[1], PD_Arr)), centroids)
 
 main() 
