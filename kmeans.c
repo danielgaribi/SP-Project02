@@ -333,7 +333,41 @@ void printOutput(double** centroids, int k, int d) {
 }
 
 static PyObject *fit( PyObject *self, PyObject *args ){
-    printf("hey im in C\n");
+    PyObject *datapointsList, *cetroidsList;
+    int datapointsLength, cetroidsLength, k, max_iter, d;
+    linked_list* pointsList;
+    double **centroids;
+    pointsList = (linked_list*)malloc(sizeof(linked_list));
+    assert(pointsList != NULL);
+    
+    if (!PyArg_ParseTuple(args, "iiiOO", &k, &d, &max_iter, &datapointsList, &cetroidsList))
+        return NULL;
+    
+    datapointsLength = PyObject_Length(datapointsList);
+    cetroidsLength = PyObject_Length(cetroidsList);
+    printf("data_l: %d c_l: %d",datapointsLength, cetroidsLength);
+
+    if (datapointsLength < 0 || cetroidsLength < 0)
+        return NULL;
+
+    centroids = calloc(sizeof(double*), cetroidsLength);
+    assert(centroids != NULL);
+
+    for (int i = 0; i < cetroidsLength; i++) {
+        PyObject *centroidItem;
+        centroidItem = PyList_GetItem(cetroidsList, i);
+        centroids[i] = calloc(sizeof(double), d);
+        
+        for (int j = 0; j < d; j++) {
+            PyObject *pointItem;
+            pointItem = PyList_GetItem(centroidItem, j);
+            assert(PyFloat_Check(pointItem));
+            centroids[i][j] = PyFloat_AsDouble(pointItem);
+        }
+    }
+    printf("%lf\n", centroids[0][0]);
+
+    printf("parsed\n");
     Py_RETURN_NONE;
 }
 
