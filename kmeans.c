@@ -342,6 +342,7 @@ void printOutput(double** centroids, int k, int d) {
 
 static PyObject *fit( PyObject *self, PyObject *args ){
     printf("hey im in C\n");
+    printf(args);
     Py_RETURN_NONE;
 }
 

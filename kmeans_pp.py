@@ -77,7 +77,7 @@ def main():
     set_header(join_points_DF)
     
     N, d = join_points_DF.shape
-    d -= 1 # if Index column is delete erase this line //////////////////////////////////////////////////
+    d -= 1 # dim - 1 for Index column
 
     PD_Arr = convert_DF_to_PDArr(join_points_DF)
     
@@ -88,7 +88,7 @@ def main():
         print(f"k: {k}\nmax_iter: {max_iter}\nfile_path1: {file_path1}\nfile_path2: {file_path2}")
         print("\npoints:\n")
         print(join_points_DF.to_string())
-
+    
     mykmeanssp.fit()
 
 main() 
