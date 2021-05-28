@@ -90,7 +90,10 @@ def main():
         print(join_points_DF.to_string())
 
     centroids = kmeans_pp(PD_Arr, k)
-    print(centroids)
-    mykmeanssp.fit(k, d, max_iter, list(map(lambda x: x[1], PD_Arr)), centroids)
+    centroidsArr = list(map(lambda x: x[1].tolist(), centroids))
+    datapointArr = list(map(lambda x: x[1].tolist(), PD_Arr))
+    print(f"centroids: {centroids}")
+    print(f"centroidsArr: {centroidsArr}\n")
+    mykmeanssp.fit(k, d, max_iter, datapointArr, centroidsArr)
 
 main() 
