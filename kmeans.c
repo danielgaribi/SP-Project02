@@ -220,25 +220,17 @@ void freeDouble2DArray(double **centroids, int k) {
     free(centroids);
 }
 
-void kmean(linked_list *pointsArray, int k, int max_iter, int d) {
+void kmean(linked_list *pointsArray, double **centroids, int k, int max_iter, int d) {
     int i, iter, isChanged;
-    double **centroids;
     node* head = pointsArray -> head;
-    
-    /*set initial centroids to be the first k points in pointsArray */
-    centroids = calloc(k, sizeof(double*)); 
-    assert(centroids != NULL);
-    for (i = 0; i < k; head = head -> next, i++) {;
-        centroids[i] = copy_point(head -> point, d);
-    }
 
     for (iter = 0; iter < max_iter; iter++) {
-        isChanged = computeCluster(k, d, centroids, pointsArray);        
+        isChanged = computeCluster(k, d, centroids, pointsArray);
         if (!isChanged) {
             break;
-        }        
+        }
     }
-    printOutput(centroids, k , d);
+    printOutput(centroids, k, d);
     freeDouble2DArray(centroids, k);
 }
 
@@ -342,7 +334,6 @@ void printOutput(double** centroids, int k, int d) {
 
 static PyObject *fit( PyObject *self, PyObject *args ){
     printf("hey im in C\n");
-    printf(args);
     Py_RETURN_NONE;
 }
 
