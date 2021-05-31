@@ -179,7 +179,7 @@ int isPointsEquel(double* point1, double* point2, int d) {
 static double **convertPyListToCentroidsArray(PyObject *cetroidsList, int d) {
     PyObject *centroidItem, *pointItem;
     double **centroids, *new_point;
-    int cetroidsLength;
+    int cetroidsLength, i, j;
 
     cetroidsLength = PyObject_Length(cetroidsList); 
     assert(cetroidsLength == -1); // PyObject_Length return -1 for error
@@ -188,11 +188,11 @@ static double **convertPyListToCentroidsArray(PyObject *cetroidsList, int d) {
     centroids = calloc(cetroidsLength, sizeof(double*));
     assert(centroids != NULL);
 
-    for (int i = 0; i < cetroidsLength; i++) {        
+    for (i = 0; i < cetroidsLength; i++) {        
         centroidItem = PyList_GetItem(cetroidsList, i);
         assert(centroidItem =! NULL);
         new_point = calloc(d, sizeof(double));
-        for (int j = 0; j < d; j++) {
+        for (j = 0; j < d; j++) {
             pointItem = PyList_GetItem(centroidItem, j);
             assert(pointItem =! NULL);
             assert(PyFloat_Check(pointItem));
@@ -207,7 +207,7 @@ static linked_list *convertPyListToPointsLinkList(PyObject *datapointsList, int 
     PyObject *datapointsItem, *pointItem;
     linked_list* pointsList;
     double *new_point;
-    int datapointsLength;
+    int datapointsLength, i, j;
 
     datapointsLength = PyObject_Length(datapointsList);
     assert(datapointsLength == -1); // PyObject_Length return -1 for error
@@ -215,11 +215,11 @@ static linked_list *convertPyListToPointsLinkList(PyObject *datapointsList, int 
     pointsList->length = 0;
 
     // insert datapoints to linked list
-    for (int i = 0; i < datapointsLength; i++) {        
+    for (i = 0; i < datapointsLength; i++) {        
         datapointsItem = PyList_GetItem(datapointsList, i);
         assert(datapointsItem =! NULL);
         new_point = calloc(d, sizeof(double)); 
-        for (int j = 0; j < d; j++) {
+        for (j = 0; j < d; j++) {
             pointItem = PyList_GetItem(datapointsItem, j);
             assert(pointItem =! NULL);
             assert(PyFloat_Check(pointItem));
@@ -232,9 +232,10 @@ static linked_list *convertPyListToPointsLinkList(PyObject *datapointsList, int 
 
 PyObject *convertCentroidsArrayToPyList(double** array, int k, int d) {
     PyObject * lst = PyList_New(k), *innerLst;
-    for (int i = 0; i < k ; i++) {
+    int i ,j;
+    for (i = 0; i < k ; i++) {
         innerLst = PyList_New(d);
-        for (int j = 0; j < d; j++) {
+        for (j = 0; j < d; j++) {
             PyList_SET_ITEM(innerLst, j, Py_BuildValue("d", array[i][j]));
         }
         PyList_SET_ITEM(lst, i, innerLst);
