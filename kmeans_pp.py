@@ -71,6 +71,16 @@ def convert_DF_to_PDArr(pointsDF):
         arr.append((index,point))
     return sorted(arr, key=lambda t: t[0])
 
+def printOutput(centroids): 
+    str = ""
+    for i in range(len(centroids)): 
+        for d in range(len(centroids[0])): 
+            str += "{}".format(format(centroids[i][d], '.4f'))
+            str += ","
+        str = str[:-1] + "\n"
+    
+    print(str[:-1])
+
 def main():
     k, max_iter, file_path1, file_path2 = readArgs()
     pointsDf1 = readPointsFromFile(file_path1)
@@ -94,6 +104,8 @@ def main():
     centroidsArr = list(map(lambda x: x[1].tolist(), centroids))
     datapointArr = list(map(lambda x: x[1].tolist(), PD_Arr))
     print(",".join([str(int(c[0])) for c in centroids]))
-    mykmeanssp.fit(k, d, max_iter, datapointArr, centroidsArr)
+    
+    centroids = mykmeanssp.fit(k, d, max_iter, datapointArr, centroidsArr)
+    printOutput(centroids)
 
 main() 
