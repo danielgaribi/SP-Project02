@@ -38,8 +38,7 @@ typedef struct linked_list linked_list;
 typedef struct node_double node_double;
 typedef struct linked_list_double linked_list_double;
 
-void kmean(linked_list *pointsArray, int k, int max_iter, int d);
-void kmean2(linked_list *pointsArray, double **centroids, int k, int max_iter, int d);
+void kmean(linked_list *pointsArray, double **centroids, int k, int max_iter, int d);
 int readArgs(int argc, char *argv[], int* k, int* max_iter);
 int readPointsArray(linked_list* pointsList);
 void addToList(linked_list* list, double* point);
@@ -59,25 +58,7 @@ void freeDouble2DArray(double **centroids, int k);
 static PyObject *fit( PyObject *self, PyObject *args );
 
 int main(int argc, char *argv[]) {
-    int k, max_iter, d, res;
-    linked_list* pointsList;
-    assert(2 <= argc && argc <= 3);
     
-    res = readArgs(argc, argv, &k, &max_iter);
-    if(res == false) {
-        return 0;
-    }
-    pointsList = (linked_list*)malloc(sizeof(linked_list));
-    assert(pointsList != NULL);
-    pointsList->length = 0;
-    d = readPointsArray(pointsList);
-    if(k >= pointsList->length) {
-        printf("K is not smaller then n, exits...\n");
-        return false;
-    }
-    kmean(pointsList, k, max_iter, d);
-    freeList(pointsList, true);
-
     return 0;
 }
 
@@ -221,32 +202,8 @@ void freeDouble2DArray(double **centroids, int k) {
     free(centroids);
 }
 
-void kmean(linked_list *pointsArray, int k, int max_iter, int d) {
-    int i, iter, isChanged;
-    double **centroids;
-    node* head = pointsArray -> head;
-    
-    /*set initial centroids to be the first k points in pointsArray */
-    centroids = calloc(k, sizeof(double*)); 
-    assert(centroids != NULL);
-    for (i = 0; i < k; head = head -> next, i++) {;
-        centroids[i] = copy_point(head -> point, d);
-    }
-
-    for (iter = 0; iter < max_iter; iter++) {
-        isChanged = computeCluster(k, d, centroids, pointsArray);        
-        if (!isChanged) {
-            break;
-        }        
-    }
-    printOutput(centroids, k , d);
-    freeDouble2DArray(centroids, k);
-}
-
-void kmean2(linked_list *pointsArray, double **centroids, int k, int max_iter, int d) {
-    int iter;
-    int isChanged;
-    node* head = pointsArray -> head;
+void kmean(linked_list *pointsArray, double **centroids, int k, int max_iter, int d) {
+    int iter, isChanged;
 
     for (iter = 0; iter < max_iter; iter++) {
         isChanged = computeCluster(k, d, centroids, pointsArray);
@@ -357,22 +314,23 @@ void printOutput(double** centroids, int k, int d) {
     }
 }
 
-double **centroids insertCentroindsToArray(PyObject *cetroidsList, int d) {
-    // insert centroids to double array
-    centroids = calloc(cetroidsLength, sizeof(double*));
-    assert(centroids != NULL);
-    double* new_point = calloc(d, sizeof(double));
+static double **convertPyListToCentroidsArray(PyObject *cetroidsList, int d) {
+    PyObject *centroidItem, *pointItem;
+    double **centroids, *new_point;
+    int cetroidsLength;
+
     cetroidsLength = PyObject_Length(cetroidsList); 
     assert(cetroidsLength == -1); // PyObject_Length return -1 for error
 
+    // insert centroids to double array
+    centroids = calloc(cetroidsLength, sizeof(double*));
+    assert(centroids != NULL);
 
     for (int i = 0; i < cetroidsLength; i++) {        
-        PyObject *centroidItem;
         centroidItem = PyList_GetItem(cetroidsList, i);
         assert(centroidItem =! NULL);
-        double* new_point = calloc(d, sizeof(double));
+        new_point = calloc(d, sizeof(double));
         for (int j = 0; j < d; j++) {
-            PyObject *pointItem;
             pointItem = PyList_GetItem(centroidItem, j);
             assert(pointItem =! NULL);
             assert(PyFloat_Check(pointItem));
@@ -383,32 +341,23 @@ double **centroids insertCentroindsToArray(PyObject *cetroidsList, int d) {
     return centroids;
 }
 
-static PyObject *fit( PyObject *self, PyObject *args ){
-    PyObject *datapointsList, *cetroidsList;
-    int datapointsLength, cetroidsLength, k, max_iter, d;
+static linked_list *convertPyListToPointsLinkList(PyObject *datapointsList, int d) {
+    PyObject *datapointsItem, *pointItem;
     linked_list* pointsList;
-    double **centroids;
-    pointsList = (linked_list*)calloc(1,sizeof(linked_list));
-    assert(pointsList != NULL);
-    pointsList->length = 0;
-    
-    if (!PyArg_ParseTuple(args, "iiiOO", &k, &d, &max_iter, &datapointsList, &cetroidsList))
-        return NULL;
-    
+    double *new_point;
+    int datapointsLength;
+
     datapointsLength = PyObject_Length(datapointsList);
     assert(datapointsLength == -1); // PyObject_Length return -1 for error
-    
-    printf("k: %d\nd: %d\nmax_iter: %d\n",k,d,max_iter);
-    printf("datapointsLength: %d\ncetroidsLength: %d\n",datapointsLength, cetroidsLength);
+    pointsList = (linked_list*)calloc(1,sizeof(linked_list));
+    pointsList->length = 0;
 
     // insert datapoints to linked list
     for (int i = 0; i < datapointsLength; i++) {        
-        PyObject *datapointsItem;
         datapointsItem = PyList_GetItem(datapointsList, i);
         assert(datapointsItem =! NULL);
-        double* new_point = calloc(d, sizeof(double)); 
+        new_point = calloc(d, sizeof(double)); 
         for (int j = 0; j < d; j++) {
-            PyObject *pointItem;
             pointItem = PyList_GetItem(datapointsItem, j);
             assert(pointItem =! NULL);
             assert(PyFloat_Check(pointItem));
@@ -416,18 +365,25 @@ static PyObject *fit( PyObject *self, PyObject *args ){
         }
         addToList(pointsList, new_point);
     }
+    return pointsList;
+}
+
+static PyObject *fit( PyObject *self, PyObject *args ){
+    PyObject *datapointsList, *cetroidsList;
+    int k, max_iter, d;
+    linked_list* pointsList;
+    double **centroids;
+    assert(pointsList != NULL);
     
-    int index = 0;
-    for (node *n = pointsList -> head; n != NULL; n = n -> next) {
-        printf("Point %d: ", index);
-        for (int j = 0; j < d; j++) {
-            printf("%lf, ", (n -> point)[j]);
-        }
-        printf("\n");
-        index++;
-    }
+    if (!PyArg_ParseTuple(args, "iiiOO", &k, &d, &max_iter, &datapointsList, &cetroidsList))
+        return NULL;
+
+    centroids = convertPyListToCentroidsArray(cetroidsList, d);
+    pointsList = convertPyListToPointsLinkList(datapointsList, d);
     
-    printf("parsed\n");
+    kmean(pointsList, centroids, k, max_iter, d);
+    freeList(pointsList, true);
+
     Py_RETURN_NONE;
 }
 

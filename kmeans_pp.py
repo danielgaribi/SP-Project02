@@ -52,12 +52,13 @@ def kmeans_pp(datapoints, k):
     while(Z < k):
         D = []
         for x in datapoints:
-            distances = [np.linalg.norm(x[1] - centroid[1]) for centroid in centroids]
+            distances = [np.linalg.norm(x[1] - centroid[1])**2 for centroid in centroids]
+            
             D.append(min(distances))
         
         Z += 1
-        s = sum(D)
-        D = list(map(lambda d: d/s, D))
+        dSum = sum(D)
+        D = list(map(lambda d: d / dSum, D))
         centroids.append(datapoints[np.random.choice(len(datapoints), p=D)])
     
     return centroids
@@ -68,7 +69,7 @@ def convert_DF_to_PDArr(pointsDF):
         index = pointsDF.loc(0)[row][0]
         point = pointsDF.loc(0)[row][1:].to_numpy()
         arr.append((index,point))
-    return arr
+    return sorted(arr, key=lambda t: t[0])
 
 def main():
     k, max_iter, file_path1, file_path2 = readArgs()
@@ -92,8 +93,7 @@ def main():
     centroids = kmeans_pp(PD_Arr, k)
     centroidsArr = list(map(lambda x: x[1].tolist(), centroids))
     datapointArr = list(map(lambda x: x[1].tolist(), PD_Arr))
-    print(f"centroids: {centroids}")
-    print(f"centroidsArr: {centroidsArr}\n")
+    print(",".join([str(int(c[0])) for c in centroids]))
     mykmeanssp.fit(k, d, max_iter, datapointArr, centroidsArr)
 
 main() 
