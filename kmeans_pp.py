@@ -60,7 +60,6 @@ def kmeans_pp(datapoints, k):
         dSum = sum(D)
         NormalizedD = list(map(lambda d: d / dSum, D))
         centroids.append(datapoints[np.random.choice(len(datapoints), p=NormalizedD)])
-        #print("while Z = ",Z, time.ctime())
     
     return centroids
 
