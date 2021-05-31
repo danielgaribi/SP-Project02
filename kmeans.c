@@ -21,33 +21,13 @@ struct linked_list
     int length;
 };
 
-struct node_double
-{
-    double value;
-    struct node_double *next;
-};
-
-struct linked_list_double
-{
-    struct node_double *head;
-    struct node_double *tail;
-};
-
 typedef struct node node;
 typedef struct linked_list linked_list;
-typedef struct node_double node_double;
-typedef struct linked_list_double linked_list_double;
 
-void kmean(linked_list *pointsArray, double **centroids, int k, int max_iter, int d);
-int readArgs(int argc, char *argv[], int* k, int* max_iter);
-int readPointsArray(linked_list* pointsList);
+double** kmean(linked_list *pointsArray, double **centroids, int k, int max_iter, int d);
 void addToList(linked_list* list, double* point);
-void addToListDouble(linked_list_double* list, double value);
-double* convertDoubleListToArray(linked_list_double* list, int d);
 void freeList(linked_list* list, int isDeletePoint);
-void freeListDouble(linked_list_double* list);
 void freeNode(node* n, int isDeletePoint);
-void freeNodeDouble(node_double* n);
 double computeDist(double* point1, double* point2, int d);
 int isPointsEquel(double* point1, double* point2, int d);
 double* copy_point(double* point, int d);
@@ -58,73 +38,7 @@ void freeDouble2DArray(double **centroids, int k);
 static PyObject *fit( PyObject *self, PyObject *args );
 
 int main(int argc, char *argv[]) {
-    
     return 0;
-}
-
-int readArgs(int argc, char *argv[], int* k, int* max_iter) {
-    *k = atoi(argv[1]);
-    if (*k <= 0) {
-        printf("K is not a valid integer, exits...\n");
-        return false;
-    }
-
-    *max_iter = argc == 3 ? atoi(argv[2]) : DEFAULT_MAX_ITER;
-    if (*max_iter <= 0) {
-        printf("max_iter is not a valid integer, exits...\n");
-        return false;
-    }
-
-    #ifdef DEBUG_INPUT
-    printf("K: %d \nmax_iter: %d\n", *k, *max_iter);
-    #endif  
-
-    return true;
-}
-
-int readPointsArray(linked_list* pointsList) {
-    int d = 0, i = 0;
-    double value;
-    char c;
-    double *point;
-    linked_list_double *pointA = (linked_list_double*)malloc(sizeof(linked_list)); 
-    assert(pointA != NULL);
-    while(scanf("%lf%c", &value, &c) == 2) {
-        d++;
-        addToListDouble(pointA, value);
-        if(c == '\n') {
-            break;
-        }
-    }
-    point = (double*)calloc(d, sizeof(double)); 
-    assert(point != NULL);
-    addToList(pointsList, convertDoubleListToArray(pointA, d));
-    freeListDouble(pointA);
-
-    while (scanf("%lf%c", &value, &c) > 0) {
-        point[i] = value;
-        i++;
-        if(i == d) {
-            i = 0;
-            addToList(pointsList, point);
-            point = (double*)calloc(d, sizeof(double)); 
-            assert(point != NULL);
-        }
-    } 
-
-    #ifdef DEBUG_INPUT
-    int index = 0;
-    for (node *n = pointsList -> head; n != NULL; n = n -> next) {
-        printf("Point %d: ", index);
-        for (int j = 0; j < d; j++) {
-            printf("%lf, ", (n -> point)[j]);
-        }
-        printf("\n");
-        index++;
-    }
-    #endif
-
-    return d;
 }
 
 void addToList(linked_list* list, double* point) {
@@ -142,31 +56,6 @@ void addToList(linked_list* list, double* point) {
     }
 }
 
-void addToListDouble(linked_list_double* list, double value) {
-    node_double *n = (node_double*)malloc(sizeof(node_double));
-    assert(n != NULL);
-    n -> value = value;
-    n -> next = NULL;
-    if(list -> head == NULL) {
-        list -> head = n;
-        list -> tail = n;
-    } else {
-        list -> tail -> next = n;
-        list -> tail = n;
-    }
-}
-
-double* convertDoubleListToArray(linked_list_double* list, int d) {
-    node_double *n = list -> head;
-    int i;
-    double *point = (double*)calloc(d, sizeof(double));
-    assert(point != NULL);
-    for(i = 0; n != NULL; n = n -> next, i++) {
-        point[i] = n -> value;
-    }
-    return point;
-}
-
 void freeList(linked_list* list, int isDeletePoint) { 
     freeNode(list -> head, isDeletePoint);
     free(list);
@@ -182,18 +71,6 @@ void freeNode(node* n, int isDeletePoint) {
     }
 }
 
-void freeListDouble(linked_list_double* list) {
-    freeNodeDouble(list -> head);
-    free(list);
-}
-
-void freeNodeDouble(node_double* n) {
-    if (n != NULL) {
-        freeNodeDouble(n -> next);
-        free(n);
-    }
-}
-
 void freeDouble2DArray(double **centroids, int k) {
     int i;
     for (i = 0; i < k; i++) {
@@ -202,7 +79,7 @@ void freeDouble2DArray(double **centroids, int k) {
     free(centroids);
 }
 
-void kmean(linked_list *pointsArray, double **centroids, int k, int max_iter, int d) {
+double** kmean(linked_list *pointsArray, double **centroids, int k, int max_iter, int d) {
     int iter, isChanged;
 
     for (iter = 0; iter < max_iter; iter++) {
@@ -211,8 +88,7 @@ void kmean(linked_list *pointsArray, double **centroids, int k, int max_iter, in
             break;
         }
     }
-    printOutput(centroids, k, d);
-    freeDouble2DArray(centroids, k);
+    return centroids;
 }
 
 double* copy_point(double* point, int d) {
@@ -300,20 +176,6 @@ int isPointsEquel(double* point1, double* point2, int d) {
     return true;
 }
 
-void printOutput(double** centroids, int k, int d) {
-    int i;
-    int j;
-    for (i = 0; i < k; i++) {
-        for (j = 0; j < d; j++) {
-            printf("%.4f", centroids[i][j]);
-            if(j != d - 1){
-                printf(",");
-            }
-        }
-        printf("\n");
-    }
-}
-
 static double **convertPyListToCentroidsArray(PyObject *cetroidsList, int d) {
     PyObject *centroidItem, *pointItem;
     double **centroids, *new_point;
@@ -368,6 +230,19 @@ static linked_list *convertPyListToPointsLinkList(PyObject *datapointsList, int 
     return pointsList;
 }
 
+PyObject *convertCentroidsArrayToPyList(double** array, int k, int d) {
+    PyObject * lst = PyList_New(k), *innerLst;
+    for (int i = 0; i < k ; i++) {
+        innerLst = PyList_New(d);
+        for (int j = 0; j < d; j++) {
+            PyList_SET_ITEM(innerLst, j, Py_BuildValue("d", array[i][j]));
+        }
+        PyList_SET_ITEM(lst, i, innerLst);
+    }
+    freeDouble2DArray(array, k);
+    return lst;
+}
+
 static PyObject *fit( PyObject *self, PyObject *args ){
     PyObject *datapointsList, *cetroidsList;
     int k, max_iter, d;
@@ -381,26 +256,26 @@ static PyObject *fit( PyObject *self, PyObject *args ){
     centroids = convertPyListToCentroidsArray(cetroidsList, d);
     pointsList = convertPyListToPointsLinkList(datapointsList, d);
     
-    kmean(pointsList, centroids, k, max_iter, d);
+    centroids = kmean(pointsList, centroids, k, max_iter, d);
     freeList(pointsList, true);
 
-    Py_RETURN_NONE;
+    return convertCentroidsArrayToPyList(centroids, k, d);
 }
 
-static PyMethodDef DemoLib_FunctionsTable[] = {
+static PyMethodDef Mykmeanssp_FunctionsTable[] = {
    { "fit", fit, METH_VARARGS, NULL },
    { NULL, NULL, 0, NULL }
 };
 
 // modules definition
-static struct PyModuleDef DemoLib_Module = {
+static struct PyModuleDef Mykmeanssp_Module = {
     PyModuleDef_HEAD_INIT,
     "mykmeanssp",     // name of module exposed to Python
     "mykmeanssp doc", // module documentation
     -1,
-    DemoLib_FunctionsTable
+    Mykmeanssp_FunctionsTable
 };
 
 PyMODINIT_FUNC PyInit_mykmeanssp(void) {
-    return PyModule_Create(&DemoLib_Module);
+    return PyModule_Create(&Mykmeanssp_Module);
 }
