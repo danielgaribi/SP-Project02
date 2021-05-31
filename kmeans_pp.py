@@ -70,8 +70,6 @@ def convert_DF_to_PDArr(pointsDF):
         index = pointsDF.loc(0)[row][0]
         point = pointsDF.loc(0)[row][1:].to_numpy()
         arr.append((index,point))
-        if (row % 1000 == 0): 
-            print(row, " - ", time.ctime())
     res = sorted(arr, key=lambda t: t[0])
     return sorted(arr, key=lambda t: t[0])
 
