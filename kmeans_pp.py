@@ -1,7 +1,6 @@
 import sys
 import pandas as pd
 import numpy as np
-import random
 import mykmeanssp
 
 DEBUG_INPUT = False # set to False 
@@ -48,18 +47,19 @@ def readPointsFromFile(file_path):
 def kmeans_pp(datapoints, k):
     np.random.seed(0)
     centroids = [datapoints[np.random.choice(len(datapoints))]]
+    D = [np.inf for i in range(len(datapoints))] 
+    
     Z = 1
     while(Z < k):
-        D = []
-        for x in datapoints:
-            distances = [np.linalg.norm(x[1] - centroid[1])**2 for centroid in centroids]
-            
-            D.append(min(distances))
+        for i in range(len(datapoints)):
+            x = datapoints[i]
+            curDist = np.linalg.norm(x[1] - centroids[-1][1]) ** 2
+            D[i] = curDist if (curDist < D[i]) else D[i]            
         
         Z += 1
         dSum = sum(D)
-        D = list(map(lambda d: d / dSum, D))
-        centroids.append(datapoints[np.random.choice(len(datapoints), p=D)])
+        NormalizedD = list(map(lambda d: d / dSum, D))
+        centroids.append(datapoints[np.random.choice(len(datapoints), p=NormalizedD)])
     
     return centroids
 
@@ -69,6 +69,7 @@ def convert_DF_to_PDArr(pointsDF):
         index = pointsDF.loc(0)[row][0]
         point = pointsDF.loc(0)[row][1:].to_numpy()
         arr.append((index,point))
+    res = sorted(arr, key=lambda t: t[0])
     return sorted(arr, key=lambda t: t[0])
 
 def printOutput(centroids): 
@@ -87,11 +88,12 @@ def main():
     pointsDf2 = readPointsFromFile(file_path2)
     join_points_DF = pd.merge(pointsDf1, pointsDf2, on = 'Index') 
     set_header(join_points_DF)
-    
+
     N, d = join_points_DF.shape
     d -= 1 # dim - 1 for Index column
 
     PD_Arr = convert_DF_to_PDArr(join_points_DF)
+
     if (k >= N):
         print("K is not smaller then n, exits...")
         exit(0)
@@ -101,6 +103,7 @@ def main():
         print(join_points_DF.to_string())
 
     centroids = kmeans_pp(PD_Arr, k)
+
     centroidsArr = list(map(lambda x: x[1].tolist(), centroids))
     datapointArr = list(map(lambda x: x[1].tolist(), PD_Arr))
     print(",".join([str(int(c[0])) for c in centroids]))
