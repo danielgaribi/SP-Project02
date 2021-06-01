@@ -75,7 +75,8 @@ def printOutput(centroids):
     str = ""
     for i in range(len(centroids)): 
         for d in range(len(centroids[0])): 
-            str += "{}".format(format(centroids[i][d], '.4f'))
+            # str += "{}".format(format(centroids[i][d], '.4f')) # rounding with format
+            str += "{}".format(np.round(centroids[i][d], 4)) # rounding with np.round
             str += ","
         str = str[:-1] + "\n"
     
