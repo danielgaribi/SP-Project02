@@ -34,43 +34,42 @@ def readArgs():
     return k, max_iter, file_path1, file_path2
 
 def set_header(pointsDf):
-    columns = ["Index"]
-    for i in range(len(pointsDf.columns) - 1): 
+    columns = []
+    for i in range(len(pointsDf.columns)): 
         columns.append(f"X{i}")
     pointsDf.columns = columns
 
 def readPointsFromFile(file_path): 
     pointsDf = pd.read_csv(file_path, header=None)
-    set_header(pointsDf)
-    return pointsDf
+    return pointsDf.set_index(list(pointsDf.columns[[0]]))
+
+def getDataFrame(file_path1, file_path2):
+    pointsDf1 = readPointsFromFile(file_path1)
+    pointsDf2 = readPointsFromFile(file_path2)
+    join_points_DF = pd.merge(pointsDf1, pointsDf2, left_index=True, right_index=True) 
+    set_header(join_points_DF)
+    return join_points_DF.sort_index()
 
 def kmeans_pp(datapoints, k):
     np.random.seed(0)
-    centroids = [datapoints[np.random.choice(len(datapoints))]]
+    r = np.random.choice(len(datapoints))
+    centroids = [(r, datapoints[r])]
     D = [np.inf for i in range(len(datapoints))] 
     
     Z = 1
     while(Z < k):
         for i in range(len(datapoints)):
             x = datapoints[i]
-            curDist = np.linalg.norm(x[1] - centroids[-1][1]) ** 2
+            curDist = np.linalg.norm(x - centroids[-1][1]) ** 2
             D[i] = curDist if (curDist < D[i]) else D[i]            
         
         Z += 1
         dSum = sum(D)
         NormalizedD = list(map(lambda d: d / dSum, D))
-        centroids.append(datapoints[np.random.choice(len(datapoints), p=NormalizedD)])
+        r = np.random.choice(len(datapoints), p=NormalizedD)
+        centroids.append((r, datapoints[r]))
     
     return centroids
-
-def convert_DF_to_PDArr(pointsDF):
-    arr = []
-    for row in range(pointsDF.shape[0]):
-        index = pointsDF.loc(0)[row][0]
-        point = pointsDF.loc(0)[row][1:].to_numpy()
-        arr.append((index,point))
-    res = sorted(arr, key=lambda t: t[0])
-    return sorted(arr, key=lambda t: t[0])
 
 def printOutput(centroids): 
     str = ""
@@ -84,15 +83,9 @@ def printOutput(centroids):
 
 def main():
     k, max_iter, file_path1, file_path2 = readArgs()
-    pointsDf1 = readPointsFromFile(file_path1)
-    pointsDf2 = readPointsFromFile(file_path2)
-    join_points_DF = pd.merge(pointsDf1, pointsDf2, on = 'Index') 
-    set_header(join_points_DF)
+    pointsDataFrame = getDataFrame(file_path1, file_path2)
 
-    N, d = join_points_DF.shape
-    d -= 1 # dim - 1 for Index column
-
-    PD_Arr = convert_DF_to_PDArr(join_points_DF)
+    N, d = pointsDataFrame.shape
 
     if (k >= N):
         print("K is not smaller then n, exits...")
@@ -100,14 +93,14 @@ def main():
     if (DEBUG_INPUT):
         print(f"k: {k}\nmax_iter: {max_iter}\nfile_path1: {file_path1}\nfile_path2: {file_path2}")
         print("\npoints:\n")
-        print(join_points_DF.to_string())
+        print(pointsDataFrame.to_string())
 
-    centroids = kmeans_pp(PD_Arr, k)
-
+    datapoints = pointsDataFrame.to_numpy()
+    centroids = kmeans_pp(datapoints, k)
     centroidsArr = list(map(lambda x: x[1].tolist(), centroids))
-    datapointArr = list(map(lambda x: x[1].tolist(), PD_Arr))
-    print(",".join([str(int(c[0])) for c in centroids]))
+    datapointArr = list(map(lambda x: x.tolist(), datapoints))
     
+    print(",".join([str(int(c[0])) for c in centroids]))
     centroids = mykmeanssp.fit(k, d, max_iter, datapointArr, centroidsArr)
     printOutput(centroids)
 
