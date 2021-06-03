@@ -61,7 +61,7 @@ def kmeans_pp(datapoints, k):
         for i in range(len(datapoints)):
             x = datapoints[i]
             curDist = np.linalg.norm(x - centroids[-1][1]) ** 2
-            D[i] = curDist if (curDist < D[i]) else D[i]            
+            D[i] = curDist if (curDist < D[i]) else D[i]
         
         Z += 1
         dSum = sum(D)
@@ -75,7 +75,7 @@ def printOutput(centroids):
     str = ""
     for i in range(len(centroids)): 
         for d in range(len(centroids[0])): 
-            str += "{}".format(format(centroids[i][d], '.4f'))
+            str += "{}".format(np.round(centroids[i][d], 4))
             str += ","
         str = str[:-1] + "\n"
     
@@ -104,4 +104,5 @@ def main():
     centroids = mykmeanssp.fit(k, d, max_iter, datapointArr, centroidsArr)
     printOutput(centroids)
 
-main() 
+if (__name__ == "__main__"):
+    main() 
