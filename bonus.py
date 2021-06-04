@@ -4,27 +4,22 @@ import matplotlib.patches as pltPatch
 from numpy.core.fromnumeric import shape
 from numpy.core.numeric import full, full_like
 from sklearn.datasets import load_iris
-import kmeans_pp as kmpp
-import mykmeanssp
-
-def calculateInertia(X, centroids):
-    inertia = 0
-    for x in X:
-        minDist = float("inf")
-        for c in centroids:
-            minDist = min(minDist, np.linalg.norm(x - c) ** 2) 
-        inertia += minDist
-    return inertia
+from sklearn.cluster import KMeans
 
 def plotGraph(interiaForK):
     x = np.arange(1,11,1)
     fig, ax = plt.subplots()
     ax.plot(x, interiaForK, marker = "o")
 
-    ellipse1 = pltPatch.Ellipse((2, interiaForK[1]), 0.5, 50, color='r', linestyle = '--', fill = False)
-    ax.add_patch(ellipse1)
+    k = 3
+    yArrowLength = 60
+    xArrowLength = 0.2
+    yArrowMargin = 52
+    xArrowMargin = 0.2
 
-    ax.arrow(2, interiaForK[1], -0.5,-50, shape = 'right') #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ fix arrow :(
+    ellipse1 = pltPatch.Ellipse((k, interiaForK[k - 1]), 0.5, 50, color='r', linestyle = '--', fill = False)
+    ax.add_patch(ellipse1)
+    ax.arrow(k + xArrowLength + xArrowMargin, interiaForK[k-1] + yArrowLength + yArrowMargin, -xArrowLength, -yArrowLength, head_width=0.18, head_length=20, color = 'black')
 
     plt.title("Elbow Method for selection of optimal 'K' clusters")
     plt.xlabel("K")
@@ -32,7 +27,6 @@ def plotGraph(interiaForK):
     plt.ylabel("Averge Dispersion")
     plt.grid(True)
     plt.savefig('elbow.png')
-    plt.show() ## ////////////////////////////////////////////////////////////////delete!
 
 def main():
     datapoints = load_iris().data
@@ -41,13 +35,11 @@ def main():
     
     interiaForK = []
     for k in range(1,11):
-        centroids = kmpp.kmeans_pp(datapoints, k)
-        centroidsArr = list(map(lambda x: x[1].tolist(), centroids))
-        datapointArr = list(map(lambda x: x.tolist(), datapoints))
-        centroids = mykmeanssp.fit(k, d, max_iter, datapointArr, centroidsArr)
-        interia = calculateInertia(datapoints, centroids)
-        interiaForK.append(interia)
+        kmeans = KMeans(n_clusters = k, init = 'k-means++', random_state = 0)
+        kmeans.fit(datapoints)
+        interiaForK.append(kmeans.inertia_)
     
     plotGraph(interiaForK)
 
-main()
+if (__name__ == "__main__"):
+    main() 
