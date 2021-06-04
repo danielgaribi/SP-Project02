@@ -24,7 +24,11 @@ def plotGraph(interiaForK):
     ellipse1 = pltPatch.Ellipse((2, interiaForK[1]), 0.5, 50, color='r', linestyle = '--', fill = False)
     ax.add_patch(ellipse1)
 
-    ax.arrow(2, interiaForK[1], -0.5,-50, shape = 'right') #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ fix arrow :(
+    yArrowLength = 60
+    xArrowLength = 0.2
+    yArrowMargin = 52
+    xArrowMargin = 0.2
+    ax.arrow(2 + xArrowLength + xArrowMargin, interiaForK[1] + yArrowLength + yArrowMargin, -xArrowLength, -yArrowLength, head_width=0.18, head_length=20, color = 'black') #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ fix arrow :(
 
     plt.title("Elbow Method for selection of optimal 'K' clusters")
     plt.xlabel("K")
