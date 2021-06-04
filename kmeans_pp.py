@@ -79,7 +79,7 @@ def printOutput(centroids):
             str += ","
         str = str[:-1] + "\n"
     
-    print(str[:-1])
+    print(str[:-1]) # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ fix print of new line???? 
 
 def main():
     k, max_iter, file_path1, file_path2 = readArgs()
