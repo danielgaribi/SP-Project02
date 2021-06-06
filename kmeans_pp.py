@@ -79,23 +79,7 @@ def printOutput(centroids):
             str += ","
         str = str[:-1] + "\n"
     
-    print(str[:-1]) # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ fix print of new line???? 
-
-def printOutput2(centroids): 
-    str = ""
-    for i in range(len(centroids)): 
-        if (i < len(centroids) - 1):
-            for d in range(len(centroids[0])): 
-                str += "{}".format(np.round(centroids[i][d], 4))
-                str += ","
-            str = str[:-1] + "\n"
-        else:
-            for d in range(len(centroids[0])): 
-                str += "{}".format(np.round(centroids[i][d], 4))
-                str += ","
-    
-    print(str[:-1]) 
-
+    print(str[:-1], end = "")
 
 def main():
     k, max_iter, file_path1, file_path2 = readArgs()
@@ -118,7 +102,7 @@ def main():
     
     print(",".join([str(int(c[0])) for c in centroids]))
     centroids = mykmeanssp.fit(k, d, max_iter, datapointArr, centroidsArr)
-    printOutput2(centroids)
+    printOutput(centroids)
 
 if (__name__ == "__main__"):
     main() 
