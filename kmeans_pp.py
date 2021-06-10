@@ -12,7 +12,9 @@ def readArgs():
     except ValueError:
         print("K is not integer, exits...")
         assert(False)
-
+    if (k <= 0): 
+        print("K is not positive, exits...")
+        assert(False)
     try:
         max_iter = 300 if len(sys.argv) == 4 else int(sys.argv[2])
     except ValueError:
