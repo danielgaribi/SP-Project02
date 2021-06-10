@@ -11,14 +11,14 @@ def readArgs():
         k = int(sys.argv[1])
     except ValueError:
         print("K is not integer, exits...")
-        exit(0)
+        assert(False)
 
     try:
         max_iter = 300 if len(sys.argv) == 4 else int(sys.argv[2])
     except ValueError:
         print("max_iter is not integer, exits...")
-        exit(0)
-    
+        assert(False)    
+
     file_path1, file_path2 = "",""
     try:
         if (len(sys.argv) == 4):
@@ -29,7 +29,7 @@ def readArgs():
             file_path2 = str(sys.argv[4])
     except ValueError:
         print(f"file_name1: '{file_path1}' or file_name2: '{file_path2}' is not String, exits...")
-        exit(0)
+        assert(False)
 
     return k, max_iter, file_path1, file_path2
 
@@ -89,7 +89,7 @@ def main():
 
     if (k >= N):
         print("K is not smaller then n, exits...")
-        exit(0)
+        assert(False)
     if (DEBUG_INPUT):
         print(f"k: {k}\nmax_iter: {max_iter}\nfile_path1: {file_path1}\nfile_path2: {file_path2}")
         print("\npoints:\n")
