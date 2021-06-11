@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import mykmeanssp
 
-DEBUG_INPUT = False # set to False 
+DEBUG_INPUT = False
 
 def readArgs():
     assert(4 <= len(sys.argv) <= 5)
@@ -12,7 +12,9 @@ def readArgs():
     except ValueError:
         print("K is not integer, exits...")
         assert(False)
-
+    if (k <= 0): 
+        print("K is not positive, exits...")
+        assert(False)
     try:
         max_iter = 300 if len(sys.argv) == 4 else int(sys.argv[2])
     except ValueError:
