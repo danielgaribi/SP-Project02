@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import mykmeanssp
 
-DEBUG_INPUT = False # set to False 
+DEBUG_INPUT = False
 
 def readArgs():
     assert(4 <= len(sys.argv) <= 5)
