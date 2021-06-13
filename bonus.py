@@ -6,11 +6,14 @@ from numpy.core.numeric import full, full_like
 from sklearn.datasets import load_iris
 from sklearn.cluster import KMeans
 
+import matplotlib
+matplotlib.use('Agg')
+
 def plotGraph(interiaForK):
     x = np.arange(1,11,1)
+
     fig, ax = plt.subplots()
     ax.plot(x, interiaForK, marker = "o")
-
     k = 3
     yArrowLength = 60
     xArrowLength = 0.2
@@ -32,7 +35,6 @@ def main():
     datapoints = load_iris().data
     N, d = datapoints.shape
     max_iter = 200
-    
     interiaForK = []
     for k in range(1,11):
         kmeans = KMeans(n_clusters = k, init = 'k-means++', random_state = 0)
