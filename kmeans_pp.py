@@ -20,6 +20,9 @@ def readArgs():
     except ValueError:
         print("max_iter is not integer, exits...")
         assert(False)    
+    if (max_iter < 0): 
+        print("max_iter is not positive, exits...")
+        assert(False)
 
     file_path1, file_path2 = "",""
     try:
